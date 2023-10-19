@@ -1,54 +1,54 @@
-const inquirer = require('inquirer') // npm i inquirer
-const fs = require('fs') // npm i fs
-const Triangle = require('./lib/triangle') //javascript for the shahpes
-const Square = require('./lib/square')
-const Circle = require('./lib/circle')
-const svgGenerator = require('./lib/svg-Generator') // npm i svg-Generator
-const filewriter = require('./lib/fileWriter') // npm i filewriter
+import inquirer from 'inquirer';
+const fs = require('fs');
+const {Triangle, Circle, Square} = require('./lib/shapes');
 
-//the function that will generate the logos
-async function generateLogo(){
-    try {
-        const userInput = await inquirer.prompt([
-            {
-                type: 'input',
-                name: 'text',
-                message: 'Enter up to three characters for the logo',
-                validate: (input) => {
-                    return input.length > 0 && input.length <= 3 ? true : 'Please enter 1 to 3 characters.';
-                }
-            },
-            {
-                type: 'list',
-                name: 'shape',
-                message: 'Choose a shape for your logo',
-                choices: ['Triangle', 'Square', 'Circle']
-            },
-            {
-                type: 'input',
-                name: 'Shapecolor',
-                message: 'Enter a color for your shape'
-            }
-        ]);
 
-        let shape;
-        switch (userInput.shape) {
-            case 'Triangle':
-                shape = new Triangle();
-                break;
-            case 'Square':
-                shape = new Square();
-                break;
-            case 'Circle':
-                shape = new Circle();
-                break;
-            default:
-                throw new Error('Invalid shape');
+inquirer
+.prompt([
+    {
+        type: 'input',
+        name: 'text',
+        message: 'Enter up to three characters for the logo',
+        validate: (input) => {
+            return input.length > 0 && input.length <= 3 ? true : 'Please enter 1 to 3 characters.';
         }
-
-        
-
-    } catch (err) {
-        console.log(err);
+    },
+    {
+        type: 'list',
+        name: 'shape',
+        message: 'Choose a shape for your logo',
+        choices: ['Triangle', 'Square', 'Circle']
+    },
+    {
+        type: 'input',
+        name: 'shapeColor',
+        message: 'Enter a color for your shape'
     }
-}
+])
+.then((answers) => {
+    let shape; //variable to hold the shape
+    switch (answers.shape) {
+        case 'Triangle':
+            shape = new Triangle();
+            break;
+        case 'Square':
+            shape = new Square();
+            break;
+        case 'Circle':
+            shape = new Circle();
+            break;
+    }
+    // set the color property of the shape 
+    shape.setColor(answers.shapeColor);
+
+    //gen the svg string for the loop 
+    const svg = svgGen.generateLogo(answers.text, answers.textColor, shape);
+
+    //write the svg string to a file
+    filewriter.saveSVGToFile('logo.svg', svg);
+
+    console.log('Generate logo.svg'); //for testing
+})
+.catch((error) => {
+    console.error('An error occurred:', error.message);
+});
